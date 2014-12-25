@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Vegan Kitchen</string>
+    <string name="title_section1">Main Kitchen</string>
+    <string name="title_section2">Recipes</string>
+        <string name="sub_title_section2_1">Breakfast</string>
+        <string name="sub_title_section2_2">Dinner</string>
+        <string name="sub_title_section2_3">Treat</string>
+    <string name="title_section3">Quick Lookup</string>
+    <string name="title_section4">Sharing Place</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="action_example">Example action</string>
+    <string name="action_settings">About</string>
+
+</resources>
