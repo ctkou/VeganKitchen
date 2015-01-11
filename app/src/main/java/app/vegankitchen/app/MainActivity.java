@@ -1,32 +1,65 @@
 package app.vegankitchen.app;
 
 import android.app.Activity;
-import android.graphics.Color;
+import android.content.DialogInterface;
+import android.media.Image;
+import android.os.AsyncTask;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.content.Context;
-import android.os.Build;
 import android.os.Bundle;
-import android.view.Gravity;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.support.v4.widget.DrawerLayout;
-import android.widget.ArrayAdapter;
-import android.widget.TextView;
+import android.widget.*;
+import app.vegankitchen.exception.NoSeasonalDishException;
+import app.vegankitchen.kitchen.Ingredient;
+import app.vegankitchen.kitchen.MealType;
+import app.vegankitchen.kitchen.Recipe;
+import app.vegankitchen.kitchen.RecipeManager;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.w3c.dom.Text;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 
 public class MainActivity extends ActionBarActivity
         implements NavigationDrawerFragment.NavigationDrawerCallbacks {
 
     /**
-     * Keep check of fragment back stack count
+     * Storing all recipes in the database
      */
-    private int mFragmentBackStackCount;
+    private RecipeManager recipeManager;
+
+    /**
+     * Whether the currently visible PlaceholderFragment is holding a recipe page
+     */
+    private boolean isRecipePage = false;
+
+    /**
+     * The currently selected recipe id
+     */
+    private Long recipeId = null;
+
+    /**
+     * The currently selected recipe
+     */
+    private Recipe recipe = null;
 
     /**
      * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
@@ -38,6 +71,25 @@ public class MainActivity extends ActionBarActivity
      */
     private CharSequence mTitle;
 
+    /**
+     * Provide easy access to the ARG_SECTION_NUMBER of the current PlaceholderFragment
+     */
+    private long currentArgSectionNumber;
+
+    /**
+     * Remember the previously saved selected section number of the PlaceholderFragment
+     */
+    private static final String LAST_SECTION_NUMBER = "last_placeholderfragment_section_number";
+
+    /**
+     * Remember whether the last visible PlaceholderFragment held a recipe page
+     */
+    private static final String LAST_IS_RECIPE = "last_is_recipe";
+
+    /**
+     * Remember the previously saved selected recipe id
+     */
+    private static final String LAST_RECIPE_ID = "last_recipe_id";
 
     /**
      * Called when the activity is first created. This is where all of your normal static set up are done: create views,
@@ -48,28 +100,60 @@ public class MainActivity extends ActionBarActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
+        if ( mTitle == null )
+            Log.e("MainActivity - onCreate (s)", "null" );
+        else
+            Log.e("MainActivity - onCreate (s)", mTitle.toString());
+
+        mTitle = getResources().getString(R.string.app_name);
+
+        // Download data from database
+        DownloadJson recipesDownloader = new DownloadJson();
+        String recipeDataString = null;
+        try {
+            recipeDataString = recipesDownloader.execute("http://192.168.0.11/vegan_kitchen/").get();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
+
+        // Initialize the RecipeManager that maintain all recipes stored in database
+        try {
+            if ( recipeDataString != null )
+                recipeManager = new RecipeManager( new JSONObject(recipeDataString) );
+            else
+                recipeManager = new RecipeManager();
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        // Obtaining the last visible fragment and last selected recipe information if they exist
+        if ( savedInstanceState != null ) {
+            Log.e( "MainActivity - onCreate (m)", getResources().getString( (int) savedInstanceState.getLong( LAST_SECTION_NUMBER )));
+            currentArgSectionNumber = savedInstanceState.getLong( LAST_SECTION_NUMBER );
+            isRecipePage = savedInstanceState.getBoolean( LAST_IS_RECIPE );
+            mTitle = getResources().getString( (int) currentArgSectionNumber );
+            if (isRecipePage) {
+                recipeId = savedInstanceState.getLong( LAST_RECIPE_ID);
+                recipe = recipeManager.getRecipeById( recipeId );
+            }
+        }
+
         // Always call the super class' method
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
         mNavigationDrawerFragment = (NavigationDrawerFragment)
                 getSupportFragmentManager().findFragmentById(R.id.navigation_drawer);
-        mTitle = getResources().getString( R.string.app_name );
 
         // Set up the drawer.
         mNavigationDrawerFragment.setUp(
                 R.id.navigation_drawer,
                 (DrawerLayout) findViewById(R.id.drawer_layout));
-    }
 
-    @Override
-    public void onNavigationDrawerItemSelected( final long id) {
-        // update the main content by replacing fragments
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        fragmentManager.beginTransaction()
-                .replace(R.id.container, PlaceholderFragment.newInstance( id ))
-                .addToBackStack(null)
-                .commit();
+        Log.e("MainActivity - onCreate (e)", mTitle.toString());
     }
 
     /**
@@ -80,6 +164,9 @@ public class MainActivity extends ActionBarActivity
         mTitle = getString( (int) id );
     }
 
+    /**
+     * EFFECT: restoring the Action Bar
+     */
     public void restoreActionBar() {
         ActionBar actionBar = getSupportActionBar();
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
@@ -87,6 +174,11 @@ public class MainActivity extends ActionBarActivity
         actionBar.setTitle(mTitle);
     }
 
+    /**
+     * Initialize the contents of the Activity's standard options menu (Actionbar).
+     * @param menu : The options menu in which to place the items in.
+     * @return Return true for the menu to be displayed
+     */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         if (!mNavigationDrawerFragment.isDrawerOpen()) {
@@ -100,6 +192,11 @@ public class MainActivity extends ActionBarActivity
         return super.onCreateOptionsMenu(menu);
     }
 
+    /**
+     * EFFECT: Called when the activity has detected the user's press of the back key. The current implementation check
+     *          whether there is remaining "content" in the back stack of the PlaceHolderFragment. If none is found, it
+     *          finishes the MainActivity, thus terminating the application.
+     */
     @Override
     public void onBackPressed() {
         super.onBackPressed();
@@ -108,6 +205,11 @@ public class MainActivity extends ActionBarActivity
         };
     }
 
+    /**
+     * This hook is called whenever an item in options menu (Actionbar) is selected.
+     * @param item The menu item that was selected.
+     * @return Return false to allow normal menu processing to proceed, true to consume it here.
+     */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
@@ -117,31 +219,155 @@ public class MainActivity extends ActionBarActivity
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+            // TODO: implement this to show credits
             return true;
         }
 
+        Log.e("MainActivity - onOptionsItemSelected", mTitle.toString());
         return super.onOptionsItemSelected(item);
     }
 
+    @Override
+    public void onSaveInstanceState( Bundle outState ) {
+        Log.e("MainActivity - onSaveInstanceState", mTitle.toString());
+
+        outState.putLong(LAST_SECTION_NUMBER, currentArgSectionNumber);
+
+        outState.putBoolean( LAST_IS_RECIPE, isRecipePage );
+        if (isRecipePage) {
+            outState.putLong( LAST_RECIPE_ID, recipeId );
+        };
+
+        super.onSaveInstanceState(outState);
+    }
+
     /**
-     * A placeholder fragment containing a simple view.
+     * get the currently selected section id in the PlaceholderFragment
+     */
+    public long getCurrentArgSectionNumber() {
+        return currentArgSectionNumber;
+    }
+
+    /**
+     * get the currently selected recipe
+     */
+    public Recipe getRecipe() {
+        return recipe;
+    }
+
+    /**
+     * Called when an item in the navigation drawer is clicked
+     * @param id : The corresponding id of the section name as define in strings.xml
+     *              e.g. when "Quick Lookup", the id of title_section3 in strings.xml is passed
+     */
+    @Override
+    public void onNavigationDrawerItemSelected( long id) {
+
+        Log.e("MainActivity - onNavigationDrawerItemSelected (s)", getResources().getString( (int) id ));
+
+        // set the currently selected recipe to be null, since it is the navigation drawer that got selected
+        isRecipePage = false;
+        recipeId = null;
+        recipe = null;
+
+        // update the main content by replacing fragments
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        fragmentManager.beginTransaction()
+                .replace(R.id.container, PlaceholderFragment.newInstance( id, false ))
+                // add the current fragment to the back stack in order to ensure the previously visible fragment appear
+                // when the back button is pressed
+                .addToBackStack(null)
+                .commit();
+
+        Log.e("MainActivity - onNavigationDrawerItemSelected (e)", getResources().getString( (int) id ));
+    }
+
+    /**
+     * This method is called when the ImageButton (id: dish_image) from dish_item.xml is pressed
+     * @param view : the ImageButton that was pressed
+     */
+    public void onDishSelected( View view ) {
+        // update the currently selected recipe field
+        this.isRecipePage = true;
+        this.recipe = (Recipe) view.getTag();
+        this.recipeId = recipe.getRecipeId();
+
+        // update the main content by replacing fragments
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        fragmentManager.beginTransaction()
+                .replace(R.id.container, PlaceholderFragment.newInstance( currentArgSectionNumber, true ))
+                .addToBackStack(null)
+                .commit();
+    }
+
+    private class DownloadJson extends AsyncTask<String, Void, String> {
+
+        @Override
+        protected String doInBackground(String... strings) {
+
+            String jsonText = null;
+            try {
+                jsonText = getText( strings[0] );
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            return jsonText;
+        }
+
+        @Override
+        protected void onPostExecute(String jsonString ) {
+
+        }
+
+        private String getText( String url ) throws Exception {
+            URL website = new URL(url);
+            URLConnection connection = website.openConnection();
+            BufferedReader in = new BufferedReader(
+                    new InputStreamReader(
+                            connection.getInputStream()));
+
+            StringBuilder response = new StringBuilder();
+            String inputLine;
+
+            while ((inputLine = in.readLine()) != null)
+                response.append(inputLine);
+
+            in.close();
+
+            return response.toString();
+        }
+    }
+
+    /**
+     * A placeholder fragment.
      */
     public static class PlaceholderFragment extends Fragment {
+
         /**
-         * The fragment argument representing the section number for this
-         * fragment.
+         * The fragment argument representing the section number for this fragment.
          */
         private static final String ARG_SECTION_NUMBER = "section_id";
 
         /**
-         * Returns a new instance of this fragment for the given section
-         * number.
+         * The fragment argument representing whether the fragment is a recipe page
          */
-        public static PlaceholderFragment newInstance(long sectionId) {
+        private static final String ARG_IS_RECIPE_PAGE = "is_recipe_page";
+
+        /**
+         * Returns a new instance of this fragment for the given section number.
+         */
+        public static PlaceholderFragment newInstance( long sectionId, boolean isRecipePage ) {
+
+            Log.e("PlaceholderFragment - newInstance (s)", String.valueOf( sectionId ));
+
             PlaceholderFragment fragment = new PlaceholderFragment();
             Bundle args = new Bundle();
             args.putLong(ARG_SECTION_NUMBER, sectionId);
+            args.putBoolean(ARG_IS_RECIPE_PAGE, isRecipePage);
             fragment.setArguments(args);
+
+            Log.e("PlaceholderFragment - newInstance (e)", String.valueOf( sectionId ));
             return fragment;
         }
 
@@ -150,53 +376,115 @@ public class MainActivity extends ActionBarActivity
 
         @Override
         public void onCreate(Bundle savedInstanceState) {
+            Log.e("PlaceholderFragment - onCreate (s)", getResources().getString((int) getArguments().getLong(this.ARG_SECTION_NUMBER)));
             super.onCreate(savedInstanceState);
+            Log.e("PlaceholderFragment - onCreate (e)", getResources().getString((int) getArguments().getLong(this.ARG_SECTION_NUMBER)));
         }
 
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
-            View rootView;
+            Log.e("PlaceholderFragment - onCreateView (s)", getResources().getString((int) getArguments().getLong(this.ARG_SECTION_NUMBER)));
+            View rootView = null;
 
             // Get the section name that this fragment is associated with
             long sectionId = this.getArguments().getLong( ARG_SECTION_NUMBER );
             String sectionName = getResources().getString( (int) sectionId );
 
+            // Get whether this fragment is associated with a recipe page
+            boolean isRecipePage = this.getArguments().getBoolean( ARG_IS_RECIPE_PAGE );
+
+            // Let the MainActivity.class know the currently selected section number
+            // i.e. the unique id as based on R.id
+            ((MainActivity) getActivity()).currentArgSectionNumber = sectionId;
+
             // inflate the correct layout based on the section name currently selected
-            if ( sectionName.equals("Breakfast") )  {
-                // TODO
-                rootView = inflater.inflate(R.layout.fragment_main_breakfast, container, false);
-            }
-            else if ( sectionName.equals("Dinner") ) {
-                // TODO
-                rootView = inflater.inflate(R.layout.fragment_main_dinner, container, false);
-            }
-            else if ( sectionName.equals("Treat") ) {
-                // TODO
-                rootView = inflater.inflate(R.layout.fragment_main_treat, container, false);
-            }
-            else if ( sectionName.equals("Quick Lookup") ) {
-                // TODO
-                rootView = inflater.inflate(R.layout.fragment_main_search, container, false);
-            }
-            else if ( sectionName.equals("Sharing Place") ) {
-                // TODO
-                rootView = inflater.inflate(R.layout.fragment_main_sharing, container, false);
+            if (isRecipePage) {
+                rootView = setupDishPage( inflater, container );
             }
             else {
-                // TODO
-                rootView = inflater.inflate(R.layout.fragment_main_home, container, false);
+                if ( sectionName.equals("Breakfast") )  {
+                    // Handling the breakfast page
+                    List<Recipe> breakfastRecipes = ((MainActivity) getActivity()).recipeManager.getBreakfastRecipes();
+                    rootView = setupRecipeSearchPage(inflater,container,R.layout.fragment_main_breakfast,breakfastRecipes
+                            ,MealType.BREAKFAST);
+
+                }
+                else if ( sectionName.equals("Dinner") ) {
+                    // Handling the dinner page
+                    List<Recipe> dinnerRecipes = ((MainActivity) getActivity()).recipeManager.getDinnerRecipes();
+                    rootView = setupRecipeSearchPage(inflater,container,R.layout.fragment_main_dinner,dinnerRecipes
+                                                        ,MealType.DINNER);
+
+                }
+                else if ( sectionName.equals("Treat") ) {
+                    // Handling the treat page
+                    List<Recipe> treatRecipes = ((MainActivity) getActivity()).recipeManager.getTreatRecipes();
+                    rootView = setupRecipeSearchPage(inflater, container, R.layout.fragment_main_treat, treatRecipes
+                                                        ,MealType.TREAT);
+                }
+                else if ( sectionName.equals("Quick Lookup") ) {
+                    // TODO: handling the quick lookup page
+                    // Handling the treat page
+                    List<Recipe> allRecipes = ((MainActivity) getActivity()).recipeManager.getAllRecipes();
+                    rootView = setupRecipeSearchPage(inflater, container, R.layout.fragment_main_search, allRecipes
+                            ,null);
+                }
+                else if ( sectionName.equals("Sharing Place") ) {
+                    // TODO: handling the sharing place page
+                    rootView = inflater.inflate(R.layout.fragment_main_sharing, container, false);
+                }
+                else if ( sectionName.equals("Main Kitchen") ) {
+                    // handling the home page
+                    rootView = inflater.inflate(R.layout.fragment_main_home, container, false);
+
+                    List<Recipe> seasonalRecipes = ((MainActivity) getActivity()).recipeManager.getSeasonalRecipes();
+                    ListView seasonalRecipesView = (ListView) rootView.findViewById( R.id.seasonal_dish );
+                    seasonalRecipesView.setAdapter( new RecipeListViewAdapter( getActivity(), seasonalRecipes) );
+                    setListViewHeightBasedOnChildren( seasonalRecipesView );
+                    seasonalRecipesView.setFocusable( false );
+
+                    // TODO: handling updates on home page
+                }
+
             }
+
 
             // making sure that the action bar display the correct title when the back button is pressed
             onAttach( getActivity() );
             ((MainActivity) getActivity()).restoreActionBar();
 
+            Log.e("PlaceholderFragment - onCreateView (e)", getResources().getString((int) getArguments().getLong(this.ARG_SECTION_NUMBER)));
             return rootView;
         }
 
         @Override
+        public void onResume() {
+            super.onResume();
+            // Get the section name that this fragment is associated with
+            View rootView = ((MainActivity) getActivity()).getSupportFragmentManager()
+                    .findFragmentById(R.id.container)
+                    .getView();
+            long sectionId = this.getArguments().getLong( ARG_SECTION_NUMBER );
+            String sectionName = getResources().getString( (int) sectionId );
+            if ( !((MainActivity) getActivity()).isRecipePage )
+                if ( sectionName.equals(getResources().getString(R.string.sub_title_section2_1)) ) {
+                    updateRecipeSearchListView( MealType.BREAKFAST, rootView );
+                }
+                else if ( sectionName.equals(getResources().getString(R.string.sub_title_section2_2)) ) {
+                    updateRecipeSearchListView( MealType.DINNER, rootView );
+                }
+                else if ( sectionName.equals(getResources().getString(R.string.sub_title_section2_3)) ) {
+                    updateRecipeSearchListView( MealType.TREAT, rootView );
+                }
+                else if ( sectionName.equals(getResources().getString(R.string.title_section3)) ) {
+                    updateRecipeSearchListView( null, rootView );
+                }
+        }
+
+        @Override
         public void onSaveInstanceState(Bundle outState) {
+            Log.e("PlaceholderFragment - onSaveInstanceState", getResources().getString((int) getArguments().getLong(this.ARG_SECTION_NUMBER)));
             super.onSaveInstanceState(outState);
         }
 
@@ -207,6 +495,251 @@ public class MainActivity extends ActionBarActivity
                     getArguments().getLong(ARG_SECTION_NUMBER));
         }
 
+        private View setupRecipeSearchPage ( LayoutInflater inflater, ViewGroup container, int layoutId,
+                                             List<Recipe> recipes, MealType mealType ) {
+
+            View rootView = inflater.inflate(layoutId, container, false);
+
+            boolean isSoyFree = ((CheckBox) rootView.findViewById( R.id.is_soy_free)).isChecked();
+            boolean isRaw = ((CheckBox) rootView.findViewById( R.id.is_raw)).isChecked();
+            boolean isNutFree= ((CheckBox) rootView.findViewById( R.id.is_nut_free)).isChecked();
+            boolean isGlutenFree = ((CheckBox) rootView.findViewById( R.id.is_gluten_free)).isChecked();
+
+            recipes = RecipeManager.filteredRecipeList( recipes,
+                    isRaw, isNutFree, isGlutenFree, isSoyFree);
+
+            ListView recipesListView = (ListView) rootView.findViewById( R.id.recipe_list );
+            recipesListView.setAdapter( new RecipeListViewAdapter( getActivity(), recipes) );
+            setListViewHeightBasedOnChildren( recipesListView );
+
+            if ( mealType == null ) {
+                Spinner mealTypeSpinner = (Spinner) rootView.findViewById( R.id.meal_type_searchable );
+                ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource( getActivity(),
+                        R.array.meal_type_searchable, R.layout.support_simple_spinner_dropdown_item);
+                adapter.setDropDownViewResource( R.layout.support_simple_spinner_dropdown_item);
+                mealTypeSpinner.setAdapter( adapter );
+                mealTypeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                    @Override
+                    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                        View rootView = ((MainActivity) getActivity())
+                                .getSupportFragmentManager()
+                                .findFragmentById(R.id.container)
+                                .getView();
+                        updateRecipeSearchListView(null, rootView);
+                    }
+
+                    @Override
+                    public void onNothingSelected(AdapterView<?> adapterView) {
+
+                    }
+                });
+            }
+
+            setCheckBoxOnClickListener( rootView, mealType );
+
+            return rootView;
+        }
+
+        private void setCheckBoxOnClickListener ( View rootView, final MealType mealType ) {
+            View.OnClickListener listener = new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    View rootView = ((MainActivity) getActivity())
+                            .getSupportFragmentManager()
+                            .findFragmentById(R.id.container)
+                            .getView();
+                    updateRecipeSearchListView(mealType, rootView);
+                }
+            };
+
+            CheckBox isNutFreeCheckBox = (CheckBox) rootView.findViewById( R.id.is_nut_free );
+            isNutFreeCheckBox.setOnClickListener( listener );
+            CheckBox isSoyFreeCheckbox = (CheckBox) rootView.findViewById( R.id.is_soy_free );
+            isSoyFreeCheckbox.setOnClickListener( listener );
+            CheckBox isGlutenFreeCheckBox = (CheckBox) rootView.findViewById( R.id.is_gluten_free );
+            isGlutenFreeCheckBox.setOnClickListener( listener );
+            CheckBox isRawCheckBox = (CheckBox) rootView.findViewById( R.id.is_raw );
+            isRawCheckBox.setOnClickListener( listener );
+
+        }
+
+        private void updateRecipeSearchListView ( MealType mealType, View rootView ) {
+
+            // Initializing the recipes list
+            List<Recipe> recipes = null;
+            if ( mealType == MealType.BREAKFAST ) {
+                recipes = ((MainActivity) getActivity())
+                        .recipeManager
+                        .getBreakfastRecipes();
+            }
+            else if ( mealType == MealType.DINNER ) {
+                recipes = ((MainActivity) getActivity())
+                        .recipeManager
+                        .getDinnerRecipes();
+            }
+            else if ( mealType == MealType.TREAT ) {
+                recipes = ((MainActivity) getActivity())
+                        .recipeManager
+                        .getTreatRecipes();
+            }
+            else if ( mealType == null ) {
+                String selectedString = ((Spinner) rootView.findViewById(R.id.meal_type_searchable))
+                        .getSelectedItem().toString();
+                MealType selectedMealType = getSelectedMealType( selectedString );
+
+                recipes = ((MainActivity) getActivity())
+                        .recipeManager
+                        .getAllRecipes();
+                recipes = RecipeManager.getRecipesByMealType( recipes, selectedMealType );
+            }
+
+            // Filtering the recipe list based on inputs given in rootView
+            recipes = getFilteredRecipes( recipes, rootView );
+
+            // Update the Adapter of the recipes ListView
+            ListView updateListView = (ListView) rootView.findViewById( R.id.recipe_list );
+            updateListView.setAdapter(new RecipeListViewAdapter(getActivity(),
+                    recipes));
+            setListViewHeightBasedOnChildren(updateListView);
+
+        }
+
+        /**
+         * Return the MealType that the given string represent:
+         *  - "All" -> null
+         *  - "Breakfast" -> MealType.BREAKFAST
+         *  - "Dinner" -> MealType.DINNER
+         *  - "Treat" -> MealType.TREAT
+         * @param selectedString : the string representing a MealType
+         * @return a MealType correspond to the given string
+         */
+        private MealType getSelectedMealType ( String selectedString ) {
+
+            MealType selectedMealType = null;
+
+            if ( selectedString.equals( "All" ))
+                selectedMealType = null;
+            else if ( selectedString.equals( "Breakfast") )
+                selectedMealType = MealType.BREAKFAST;
+            else if ( selectedString.equals( "Dinner" ) )
+                selectedMealType = MealType.DINNER;
+            else if ( selectedString.equals( "Treat" ) )
+                selectedMealType = MealType.TREAT;
+
+            return selectedMealType;
+        }
+
+        /**
+         * Return a filtered list of recipes based on the inputs on a recipe search page
+         * @param recipes : the recipe list to be filtered
+         * @param rootView : the View object for which filtering criteria reside
+         * @return a filtered recipe list
+         */
+        private List<Recipe> getFilteredRecipes( List<Recipe> recipes, View rootView) {
+
+            boolean isSoyFree = ((CheckBox) rootView.findViewById(R.id.is_soy_free))
+                    .isChecked();
+            boolean isRaw = ((CheckBox) rootView.findViewById(R.id.is_raw))
+                    .isChecked();
+            boolean isNutFree = ((CheckBox) rootView.findViewById(R.id.is_nut_free))
+                    .isChecked();
+            boolean isGlutenFree = ((CheckBox) rootView.findViewById(R.id.is_gluten_free))
+                    .isChecked();
+
+            return RecipeManager.filteredRecipeList(recipes, isRaw, isNutFree, isGlutenFree, isSoyFree);
+        }
+
+        /**
+         * Set up a recipe page when an individual recipe is pressed
+         * @param inflater
+         * @param container
+         * @return
+         */
+        public View setupDishPage ( LayoutInflater inflater, ViewGroup container ) {
+
+            View view = inflater.inflate(R.layout.dish_page, container, false );
+
+            Recipe selectedRecipe = ((MainActivity) getActivity()).getRecipe();
+
+            // Setting up recipe image
+            ImageView recipeImageView = (ImageView) view.findViewById( R.id.recipe_image );
+            recipeImageView.setImageBitmap( selectedRecipe.getDishImage() );
+
+            // Setting up recipe name
+            TextView recipeNameView = (TextView) view.findViewById( R.id.recipe_name );
+            recipeNameView.setText( selectedRecipe.getRecipeName() );
+
+            // Setting up recipe description
+            TextView recipeDescriptionView = (TextView) view.findViewById( R.id.recipe_description );
+            recipeDescriptionView.setText( selectedRecipe.getDescription() );
+
+            CheckBox recipeIsRawView = (CheckBox) view.findViewById( R.id.dish_is_raw );
+            recipeIsRawView.setChecked( selectedRecipe.isRaw() );
+
+            CheckBox recipeIsNutFreeView = (CheckBox) view.findViewById( R.id.dish_is_nut_free );
+            recipeIsNutFreeView.setChecked( selectedRecipe.isNutFree() );
+
+            CheckBox recipeIsGlutenFreeView = (CheckBox) view.findViewById( R.id.dish_is_gluten_free );
+            recipeIsGlutenFreeView.setChecked( selectedRecipe.isGlutenFree() );
+
+            CheckBox recipeIsSoyFreeView = (CheckBox) view.findViewById( R.id.dish_is_soy_free );
+            recipeIsSoyFreeView.setChecked( selectedRecipe.isSoyFree() );
+
+            // Setting up recipe Prep Time
+            TextView recipePrepTimeView = (TextView) view.findViewById( R.id.recipe_prep_time );
+            recipePrepTimeView.setText( selectedRecipe.getPreparationTime() );
+
+            // Setting up recipe Serving Size
+            TextView recipeServingSizeView = (TextView) view.findViewById( R.id.recipe_serving_size );
+            recipeServingSizeView.setText( selectedRecipe.getServingSizeDescription() );
+
+            // Setting up cooking instructions
+            List<String> instructions = selectedRecipe.getCookingInstructions();
+            ListView instructionView = (ListView) view.findViewById( R.id.instruction_item_list );
+            instructionView.setAdapter( new InstructionListViewAdapter( getActivity(), instructions ));
+            setListViewHeightBasedOnChildren( instructionView );
+
+            // Setting up ingredient list
+            List<Ingredient> ingredients = selectedRecipe.getIngredients();
+            ListView ingredientView = (ListView) view.findViewById( R.id.ingredient_item_list );
+            ingredientView.setAdapter( new IngredientListViewAdapter( getActivity(), ingredients ));
+            setListViewHeightBasedOnChildren( ingredientView );
+
+            // Setting up tips
+            List<String> tips = selectedRecipe.getTips();
+            ListView tipsView = (ListView) view.findViewById( R.id.tip_item_list );
+            tipsView.setAdapter( new TipListViewAdapter( getActivity(), tips ) );
+            setListViewHeightBasedOnChildren( tipsView );
+
+            return view;
+
+        }
+
+        /**
+         * EFFECT: Method for setting the height of the given ListView dynamically based on its children
+         * @param listView : the ListView which height is to be set based on its child Views
+         *
+         * Credit to Arshad Parwez: https://plus.google.com/+ArshadParwezDev/posts
+         */
+        public static void setListViewHeightBasedOnChildren(ListView listView) {
+            ListAdapter listAdapter = listView.getAdapter();
+            if (listAdapter == null) {
+                // pre-condition
+                return;
+            }
+
+            int totalHeight = 0;
+            for (int i = 0; i < listAdapter.getCount(); i++) {
+                View listItem = listAdapter.getView(i, null, listView);
+                listItem.measure(0, 0);
+                totalHeight += listItem.getMeasuredHeight();
+            }
+
+            ViewGroup.LayoutParams params = listView.getLayoutParams();
+            params.height = totalHeight + (listView.getDividerHeight() * (listAdapter.getCount() - 1));
+            listView.setLayoutParams(params);
+            listView.requestLayout();
+        }
     }
 
 }

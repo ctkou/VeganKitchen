@@ -2,10 +2,98 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:orientation="vertical"
               android:layout_width="match_parent"
-              android:layout_height="match_parent">
-
-    <TextView android:layout_width="match_parent"
               android:layout_height="match_parent"
-              android:text="search"/>
+              android:paddingTop="5dp"
+              android:paddingBottom="5dp"
+              android:paddingStart="5dp"
+              android:paddingLeft="5dp"
+              android:paddingRight="5dp"
+              android:background="@color/SeaGreen">
+    <!-- Spinner -->
+    <Spinner android:id="@+id/meal_type_searchable"
+             android:layout_width="match_parent"
+             android:layout_height="wrap_content">
+    </Spinner>
+    <!-- filter -->
+    <LinearLayout android:layout_width="match_parent"
+                  android:layout_height="wrap_content"
+                  android:layout_gravity="left"
+                  android:orientation="horizontal">
+        <!-- whether the dish is gluten free -->
+        <TextView android:layout_width="0dp"
+                  android:layout_height="wrap_content"
+                  android:layout_weight="3"
+                  android:text="Gluten Free"
+                  android:textColor="@color/White"
+                  android:textSize="12sp"
+                  android:gravity="center_horizontal"/>
+        <CheckBox android:id="@+id/is_gluten_free"
+                  android:layout_width="0dp"
+                  android:layout_height="wrap_content"
+                  android:layout_weight="2"
+                  android:gravity="left"/>
+        <!-- whether the dish is raw -->
+        <TextView android:layout_width="0dp"
+                  android:layout_height="wrap_content"
+                  android:layout_weight="3"
+                  android:text="Raw"
+                  android:textColor="@color/White"
+                  android:textSize="12sp"
+                  android:gravity="center_horizontal"/>
+        <CheckBox android:id="@+id/is_raw"
+                  android:layout_width="0dp"
+                  android:layout_height="wrap_content"
+                  android:layout_weight="2"
+                  android:gravity="left"/>
+    </LinearLayout>
+    <LinearLayout android:layout_width="match_parent"
+                  android:layout_height="wrap_content"
+                  android:layout_gravity="left"
+                  android:orientation="horizontal">
+        <!-- whether the dish is nut free -->
+        <TextView android:layout_width="0dp"
+                  android:layout_height="wrap_content"
+                  android:layout_weight="3"
+                  android:text="Nut Free"
+                  android:textColor="@color/White"
+                  android:textSize="12sp"
+                  android:gravity="center_horizontal"/>
+        <CheckBox android:id="@+id/is_nut_free"
+                  android:layout_width="0dp"
+                  android:layout_height="wrap_content"
+                  android:layout_weight="2"
+                  android:gravity="left"/>
+        <!-- whether the dish is soy free -->
+        <TextView android:layout_width="0dp"
+                  android:layout_height="wrap_content"
+                  android:layout_weight="3"
+                  android:text="Soy Free"
+                  android:textColor="@color/White"
+                  android:textSize="12sp"
+                  android:gravity="center_horizontal"/>
+        <CheckBox android:id="@+id/is_soy_free"
+                  android:layout_width="0dp"
+                  android:layout_height="wrap_content"
+                  android:layout_weight="2"
+                  android:gravity="left"/>
+    </LinearLayout>
+
+    <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+        <!-- Breakfast Recipes -->
+        <RelativeLayout android:layout_width="300dp"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_horizontal"
+                        android:gravity="center"
+                        android:orientation="vertical">
+            <ListView xmlns:android="http://schemas.android.com/apk/res/android"
+                      android:id="@+id/recipe_list"
+                      android:layout_width="wrap_content"
+                      android:layout_height="match_parent">
+            </ListView>
+        </RelativeLayout>
+    </ScrollView>
 
 </LinearLayout>

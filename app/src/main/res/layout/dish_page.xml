@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:paddingTop="5dp"
+            android:paddingBottom="5dp"
+            android:background="@color/SeaGreen">
+
+    <LinearLayout android:layout_width="match_parent"
+                  android:layout_height="wrap_content"
+                  android:paddingLeft="10dp"
+                  android:paddingRight="10dp"
+                  android:layout_gravity="left"
+                  android:orientation="vertical">
+        <!-- Dish Image -->
+        <ImageView android:id="@+id/recipe_image"
+                   android:layout_width="200dp"
+                   android:layout_height="200dp"
+                   android:layout_gravity="center_horizontal"/>
+        <!-- Dish Name -->
+        <TextView android:id="@+id/recipe_name"
+                  android:layout_width="match_parent"
+                  android:layout_height="wrap_content"
+                  android:paddingTop="10dp"
+                  android:textColor="@color/White"
+                  android:textSize="24sp"
+                  android:gravity="center_horizontal"/>
+        <!-- Dish Description -->
+        <TextView android:layout_width="match_parent"
+                  android:layout_height="wrap_content"
+                  android:paddingTop="10dp"
+                  android:textColor="@color/White"
+                  android:textSize="24sp"
+                  android:text="@string/description"
+                  android:gravity="left"/>
+        <LinearLayout android:layout_width="match_parent"
+                      android:layout_height="wrap_content"
+                      android:layout_gravity="left"
+                      android:orientation="horizontal">
+            <!-- whether the dish is gluten free -->
+            <TextView android:layout_width="0dp"
+                      android:layout_height="wrap_content"
+                      android:layout_weight="3"
+                      android:text="Gluten Free"
+                      android:textColor="@color/White"
+                      android:textSize="12sp"
+                      android:gravity="center_horizontal"/>
+            <CheckBox android:id="@+id/dish_is_gluten_free"
+                      android:layout_width="0dp"
+                      android:layout_height="wrap_content"
+                      android:layout_weight="2"
+                      android:clickable="false"
+                      android:gravity="left"/>
+            <!-- whether the dish is raw -->
+            <TextView android:layout_width="0dp"
+                      android:layout_height="wrap_content"
+                      android:layout_weight="3"
+                      android:text="Raw"
+                      android:textColor="@color/White"
+                      android:textSize="12sp"
+                      android:gravity="center_horizontal"/>
+            <CheckBox android:id="@+id/dish_is_raw"
+                      android:layout_width="0dp"
+                      android:layout_height="wrap_content"
+                      android:layout_weight="2"
+                      android:clickable="false"
+                      android:gravity="left"/>
+        </LinearLayout>
+        <LinearLayout android:layout_width="match_parent"
+                      android:layout_height="wrap_content"
+                      android:layout_gravity="left"
+                      android:orientation="horizontal">
+            <!-- whether the dish is nut free -->
+            <TextView android:layout_width="0dp"
+                      android:layout_height="wrap_content"
+                      android:layout_weight="3"
+                      android:text="Nut Free"
+                      android:textColor="@color/White"
+                      android:textSize="12sp"
+                      android:gravity="center_horizontal"/>
+            <CheckBox android:id="@+id/dish_is_nut_free"
+                      android:layout_width="0dp"
+                      android:layout_height="wrap_content"
+                      android:layout_weight="2"
+                      android:clickable="false"
+                      android:gravity="left"/>
+            <!-- whether the dish is soy free -->
+            <TextView android:layout_width="0dp"
+                      android:layout_height="wrap_content"
+                      android:layout_weight="3"
+                      android:text="Soy Free"
+                      android:textColor="@color/White"
+                      android:textSize="12sp"
+                      android:gravity="center_horizontal"/>
+            <CheckBox android:id="@+id/dish_is_soy_free"
+                      android:layout_width="0dp"
+                      android:layout_height="wrap_content"
+                      android:layout_weight="2"
+                      android:clickable="false"
+                      android:gravity="left"/>
+        </LinearLayout>
+        <TextView android:id="@+id/recipe_description"
+                  android:layout_width="match_parent"
+                  android:layout_height="wrap_content"
+                  android:paddingBottom="10dp"
+                  android:textColor="@color/White"
+                  android:textSize="15sp"
+                  android:gravity="left"/>
+        <!-- Estimated Prep Time -->
+        <TextView android:layout_width="match_parent"
+                  android:layout_height="wrap_content"
+                  android:paddingTop="10dp"
+                  android:textColor="@color/White"
+                  android:textSize="24sp"
+                  android:text="@string/preparation_time"
+                  android:gravity="left"/>
+        <TextView android:id="@+id/recipe_prep_time"
+                  android:layout_width="match_parent"
+                  android:layout_height="wrap_content"
+                  android:paddingBottom="10dp"
+                  android:textColor="@color/White"
+                  android:textSize="15sp"
+                  android:gravity="left"/>
+        <!-- Estimated Serving Size -->
+        <TextView android:layout_width="match_parent"
+                  android:layout_height="wrap_content"
+                  android:paddingTop="10dp"
+                  android:textColor="@color/White"
+                  android:textSize="24sp"
+                  android:text="@string/serving_size"
+                  android:gravity="left"/>
+        <TextView android:id="@+id/recipe_serving_size"
+                  android:layout_width="match_parent"
+                  android:layout_height="wrap_content"
+                  android:paddingBottom="10dp"
+                  android:textColor="@color/White"
+                  android:textSize="15sp"
+                  android:gravity="left"/>
+        <!-- Cooking Instructions -->
+        <TextView android:layout_width="match_parent"
+                  android:layout_height="wrap_content"
+                  android:paddingTop="10dp"
+                  android:textColor="@color/White"
+                  android:textSize="24sp"
+                  android:text="@string/instructions"
+                  android:gravity="left"/>
+        <RelativeLayout android:layout_width="300dp"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="left"
+                        android:gravity="left"
+                        android:orientation="vertical">
+            <ListView xmlns:android="http://schemas.android.com/apk/res/android"
+                      android:id="@+id/instruction_item_list"
+                      android:layout_width="wrap_content"
+                      android:layout_height="match_parent">
+            </ListView>
+        </RelativeLayout>
+        <!-- Ingredient List -->
+        <TextView android:layout_width="match_parent"
+                  android:layout_height="wrap_content"
+                  android:paddingTop="10dp"
+                  android:textColor="@color/White"
+                  android:textSize="24sp"
+                  android:text="@string/ingredients"
+                  android:gravity="left"/>
+        <RelativeLayout android:layout_width="300dp"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="left"
+                        android:gravity="left"
+                        android:orientation="vertical">
+            <ListView xmlns:android="http://schemas.android.com/apk/res/android"
+                      android:id="@+id/ingredient_item_list"
+                      android:layout_width="wrap_content"
+                      android:layout_height="match_parent">
+            </ListView>
+        </RelativeLayout>
+        <!-- Tips -->
+        <TextView android:layout_width="match_parent"
+                  android:layout_height="wrap_content"
+                  android:paddingTop="10dp"
+                  android:textColor="@color/White"
+                  android:textSize="24sp"
+                  android:text="@string/tips"
+                  android:gravity="left"/>
+        <RelativeLayout android:layout_width="300dp"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="left"
+                        android:gravity="left"
+                        android:orientation="vertical">
+            <ListView xmlns:android="http://schemas.android.com/apk/res/android"
+                      android:id="@+id/tip_item_list"
+                      android:layout_width="wrap_content"
+                      android:layout_height="match_parent">
+            </ListView>
+        </RelativeLayout>
+        <TextView android:layout_width="match_parent"
+                  android:layout_height="25dp"/>
+    </LinearLayout>
+</ScrollView>

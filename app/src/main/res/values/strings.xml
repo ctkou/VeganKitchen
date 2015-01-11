@@ -9,9 +9,27 @@
         <string name="sub_title_section2_3">Treat</string>
     <string name="title_section3">Quick Lookup</string>
     <string name="title_section4">Sharing Place</string>
+    <string name="seasonal_dish_page_title">Seasonal Dish</string>
+    <string name="breakfast_page_title">Breakfast Recipes</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="action_example">Example action</string>
     <string name="action_settings">About</string>
+
+    <!-- Individual Dish Page -->
+    <string name="description"><u>Description:</u></string>
+    <string name="preparation_time"><u>Estimated Preparation Time:</u></string>
+    <string name="serving_size"><u>Serving Size:</u></string>
+    <string name="instructions"><u>Instructions:</u></string>
+    <string name="ingredients"><u>Ingredients:</u></string>
+    <string name="tips"><u>Tips:</u></string>
+
+    <!-- MealType searchable -->
+    <string-array name="meal_type_searchable">
+        <item>All</item>
+        <item>Breakfast</item>
+        <item>Dinner</item>
+        <item>Treat</item>
+    </string-array>
 
 </resources>

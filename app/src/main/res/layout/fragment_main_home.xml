@@ -2,46 +2,43 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
               android:orientation="vertical"
               android:layout_width="match_parent"
-              android:layout_height="match_parent"
+              android:layout_height="wrap_content"
               android:paddingTop="5dp"
               android:paddingBottom="5dp"
-              android:background="@color/DarkSeaGreen">
+              android:background="@color/SeaGreen">
 
     <LinearLayout android:layout_width="match_parent"
                   android:layout_height="wrap_content"
                   android:layout_gravity="center_horizontal"
                   android:orientation="vertical">
 
-        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                      android:orientation="vertical"
-                      android:background="@drawable/border"
+        <!-- Seasonal Dish -->
+        <TextView android:layout_width="match_parent"
+                  android:layout_height="wrap_content"
+                  android:paddingTop="10dp"
+                  android:textColor="@color/White"
+                  android:textSize="24sp"
+                  android:text="@string/seasonal_dish_page_title"
+                  android:gravity="center"/>
+
+        <RelativeLayout android:layout_width="300dp"
+                      android:layout_height="wrap_content"
+                      android:layout_gravity="center_horizontal"
+                      android:gravity="center"
+                      android:focusable="false"
+                      android:orientation="vertical">
+
+            <ListView android:id="@+id/seasonal_dish"
                       android:layout_width="wrap_content"
-                      android:layout_height="wrap_content"
-                      android:layout_gravity="center_horizontal">
-            <TextView android:layout_width="match_parent"
-                      android:layout_height="wrap_content"
-                      android:paddingTop="10dp"
-                      android:textColor="@color/White"
-                      android:textSize="24sp"
-                      android:text="Seasonal Dish"
-                      android:gravity="center"/>
-            <ImageButton android:layout_width="225dp"
-                         android:layout_height="225dp"
-                         android:onClick=""
-                         android:layout_gravity="center_horizontal"
-                         android:src="@drawable/cake"/>
-            <TextView android:layout_width="275dp"
-                      android:layout_height="wrap_content"
-                      android:paddingBottom="10dp"
-                      android:textColor="@color/White"
-                      android:textSize="15sp"
-                      android:text="Want more fun time in bed? This viagra laden cake is here to help"
-                      android:gravity="center"/>
-        </LinearLayout>
+                      android:layout_height="match_parent">
+            </ListView>
+
+        </RelativeLayout>
 
         <TextView android:layout_width="match_parent"
                   android:layout_height="25dp"/>
 
+        <!-- Latest Updates -->
         <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
                       android:orientation="vertical"
                       android:background="@drawable/border"

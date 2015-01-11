@@ -12,6 +12,7 @@ import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -22,6 +23,7 @@ import android.widget.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * Fragment used for managing interactions for and presentation of a navigation drawer.
@@ -74,6 +76,9 @@ public class NavigationDrawerFragment extends Fragment {
      */
     @Override
     public void onCreate(Bundle savedInstanceState) {
+
+        Log.e("NavigationDrawerFragment - onCreate (s)", getResources().getString((int) mCurrentSelectedID));
+
         super.onCreate(savedInstanceState);
 
         // Read in the flag indicating whether or not the user has demonstrated awareness of the
@@ -88,7 +93,15 @@ public class NavigationDrawerFragment extends Fragment {
         }
 
         // Select either the default item (0) or the last selected item.
-        selectItem(mCurrentSelectedPosition,mCurrentSelectedID);
+        long mainPlaceholderSectionID = ((MainActivity) getActivity()).getCurrentArgSectionNumber();
+        if ( ((MainActivity) getActivity()).getRecipe() == null ) {
+            if ( mainPlaceholderSectionID != R.string.sub_title_section2_1 &&
+                    mainPlaceholderSectionID != R.string.sub_title_section2_2 &&
+                    mainPlaceholderSectionID != R.string.sub_title_section2_3 &&
+                    mainPlaceholderSectionID != R.string.title_section3 )
+                selectItem(mCurrentSelectedPosition, mCurrentSelectedID);
+        }
+        Log.e("NavigationDrawerFragment - onCreate (e)", getResources().getString((int) mCurrentSelectedID));
     }
 
     /**
@@ -112,6 +125,9 @@ public class NavigationDrawerFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
+        Log.e("NavigationDrawerFragment - onCreateView (s)", getResources().getString((int) mCurrentSelectedID));
+
         mDrawerListView = (ExpandableListView) inflater.inflate(
                 R.layout.fragment_navigation_drawer, container, false);
 
@@ -142,8 +158,6 @@ public class NavigationDrawerFragment extends Fragment {
                 int position = parent.getFlatListPosition(
                         ExpandableListView.getPackedPositionForChild(groupPosition, childPosition));
                 selectItem(position, id);
-                String string = "The group position is " + groupPosition +  ", the child position is " + childPosition + ", the child ID is " + id;
-                Toast.makeText( getActivity(), string, Toast.LENGTH_LONG).show();
                 return true;
             }
         });
@@ -163,13 +177,13 @@ public class NavigationDrawerFragment extends Fragment {
                 int position = parent.getFlatListPosition(
                         ExpandableListView.getPackedPositionForGroup(groupPosition));
                 selectItem(position, id);
-                String string = "The group position is " + groupPosition + ", the group ID is " + id;
-                Toast.makeText( getActivity(), string, Toast.LENGTH_LONG).show();
                 return false;
             }
         });
 
-        mDrawerListView.setItemChecked(mCurrentSelectedPosition, true);
+        //mDrawerListView.setItemChecked(mCurrentSelectedPosition, true);
+
+        Log.e("NavigationDrawerFragment - onCreateView (e)", getResources().getString((int) mCurrentSelectedID));
 
         return mDrawerListView;
     }
@@ -264,6 +278,7 @@ public class NavigationDrawerFragment extends Fragment {
     private void selectItem(int position, long id) {
         mCurrentSelectedPosition = position;
         mCurrentSelectedID = id;
+        Log.e("NavigationDrawerFragment - selectItem (s)", getResources().getString((int) mCurrentSelectedID));
         if (mDrawerListView != null) {
             mDrawerListView.setItemChecked(position, true);
         }
@@ -273,6 +288,7 @@ public class NavigationDrawerFragment extends Fragment {
         if (mCallbacks != null && !isNonEmptyGroup(id) ) {
             mCallbacks.onNavigationDrawerItemSelected( id );
         }
+        Log.e("NavigationDrawerFragment - selectItem (e)", getResources().getString((int) mCurrentSelectedID));
     }
 
     /**
@@ -303,6 +319,8 @@ public class NavigationDrawerFragment extends Fragment {
         super.onSaveInstanceState(outState);
         outState.putInt(STATE_SELECTED_POSITION, mCurrentSelectedPosition);
         outState.putLong(STATE_SELECTED_ID, mCurrentSelectedID);
+
+        Log.e("onSaveInstanceState", getResources().getString((int) mCurrentSelectedID));
     }
 
     @Override
