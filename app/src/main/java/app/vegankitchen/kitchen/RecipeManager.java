@@ -7,6 +7,7 @@ import android.os.Environment;
 import android.util.Log;
 import app.vegankitchen.app.R;
 import app.vegankitchen.exception.NoSeasonalDishException;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -27,10 +28,10 @@ public class RecipeManager {
      */
     List<Recipe> recipes;
 
-    public RecipeManager( JSONObject recipesData ) throws NoSeasonalDishException{
+    public RecipeManager( JSONArray recipesData ) throws NoSeasonalDishException{
         RecipeJSONParser recipeJSONParser = new RecipeJSONParser();
         try {
-            recipes.addAll( recipeJSONParser.parseRecipes( recipesData ) );
+            recipes = recipeJSONParser.parseRecipes( recipesData );
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -64,7 +65,7 @@ public class RecipeManager {
         Recipe recipe1 = new Recipe(10,recipeName1,image1,MealType.TREAT,description1,preparationTime1,
                 servingSizeDescription1,ingredients1,cookingInstructions1,tips1,true,true,false,true,false);
 
-        String path2 = "/storage/emulated/0/Pictures/Testing/breakfast1.jpg";
+        String path2 = "/res/drawable/testdish2.jpg";
         String recipeName2 = "Pancake";
         Bitmap image2 = BitmapFactory.decodeFile(path2);
         String description2 = "Just some normal pancake";

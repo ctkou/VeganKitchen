@@ -22,6 +22,7 @@ import app.vegankitchen.kitchen.Ingredient;
 import app.vegankitchen.kitchen.MealType;
 import app.vegankitchen.kitchen.Recipe;
 import app.vegankitchen.kitchen.RecipeManager;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.w3c.dom.Text;
@@ -110,8 +111,9 @@ public class MainActivity extends ActionBarActivity
         // Download data from database
         DownloadJson recipesDownloader = new DownloadJson();
         String recipeDataString = null;
+
         try {
-            recipeDataString = recipesDownloader.execute("http://192.168.0.11/vegan_kitchen/").get();
+            recipeDataString = recipesDownloader.execute("http://stark-mesa-5518.herokuapp.com/recipes/show").get();
         } catch (InterruptedException e) {
             e.printStackTrace();
         } catch (ExecutionException e) {
@@ -121,7 +123,7 @@ public class MainActivity extends ActionBarActivity
         // Initialize the RecipeManager that maintain all recipes stored in database
         try {
             if ( recipeDataString != null )
-                recipeManager = new RecipeManager( new JSONObject(recipeDataString) );
+                recipeManager = new RecipeManager( new JSONArray(recipeDataString) );
             else
                 recipeManager = new RecipeManager();
         }

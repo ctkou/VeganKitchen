@@ -16,8 +16,8 @@ import java.util.List;
 public class RecipeJSONParser {
     // Storing field names
     private final String recipes = "recipes";
-    private final String recipe_id = "recipe_id";
-    private final String recipe_image = "recipe_image";
+    private final String recipe_id = "id";
+    private final String recipe_image = "image";
     private final String recipe_name = "name";
     private final String recipe_description = "description";
     private final String recipe_prep_time = "prep_time";
@@ -32,23 +32,20 @@ public class RecipeJSONParser {
     private final String recipe_ingredients = "ingredients";
     private final String recipe_tips = "tips";
 
-    private final String instruction_step = "step_number";
     private final String instruction = "instruction";
 
-    private final String ingredient = "ingredient";
-    private final String ingredient_description = "description";
+    private final String ingredient = "name";
+    private final String ingredient_quantity = "quantity";
 
     private final String tip = "tip";
 
-    public List<Recipe> parseRecipes( JSONObject recipeData ) throws JSONException {
+    public List<Recipe> parseRecipes( JSONArray recipeData ) throws JSONException {
 
-        JSONArray allRecipesJSON = recipeData.getJSONArray(recipes);
+        JSONArray allRecipesJSON = recipeData;
         List<Recipe> recipeList = new ArrayList<Recipe>();
         for ( int i = 0; i < allRecipesJSON.length(); i++ ) {
             JSONObject recipeJSON = allRecipesJSON.getJSONObject(i);
-
-
-            int recipeId = Integer.parseInt( (String) recipeJSON.get(recipe_id) );
+            int recipeId = (Integer) recipeJSON.get( recipe_id );
             String recipeName = (String) recipeJSON.get( recipe_name );
                 String img64EncodingString = (String) recipeJSON.get(recipe_image);
                 byte[] imageAsBytes = Base64.decode(img64EncodingString.getBytes(), Base64.DEFAULT);
@@ -60,11 +57,11 @@ public class RecipeJSONParser {
             List<Ingredient> ingredients = getIngredients(recipeJSON);
             List<String> instructions = getInstructions(recipeJSON);
             List<String> tips = getTip(recipeJSON);
-            boolean isSeasonal = getBoolean( Integer.parseInt((String) recipeJSON.get(recipe_is_seasonal) ) );
-            boolean isGlutenFree = getBoolean( Integer.parseInt((String) recipeJSON.get(recipe_is_gluten_free)) );
-            boolean isNutFree = getBoolean( Integer.parseInt((String) recipeJSON.get(recipe_is_nut_free) ) );
-            boolean isSoyFree = getBoolean( Integer.parseInt((String) recipeJSON.get(recipe_is_soy_free) ) );
-            boolean isRaw = getBoolean( Integer.parseInt( (String) recipeJSON.get( recipe_is_raw ) ) ) ;
+            boolean isSeasonal = (Boolean) recipeJSON.get(recipe_is_seasonal);
+            boolean isGlutenFree = (Boolean) recipeJSON.get(recipe_is_gluten_free);
+            boolean isNutFree = (Boolean) recipeJSON.get(recipe_is_nut_free);
+            boolean isSoyFree = (Boolean) recipeJSON.get(recipe_is_soy_free);
+            boolean isRaw = (Boolean) recipeJSON.get( recipe_is_raw );
 
             recipeList.add(new Recipe( recipeId, recipeName, recipeImage, mealType, recipeDescription, recipePrepTime,
                     recipeServingSize, ingredients, instructions, tips, isSeasonal, isGlutenFree, isNutFree, isSoyFree,
@@ -82,7 +79,11 @@ public class RecipeJSONParser {
         else if ( recipeJSON.get(recipe_meal_type).equals("Dinner") ) {
             mealType = MealType.DINNER;
         }
-        else if ( recipeJSON.get(recipe_meal_type).equals("Breakfast") ) {
+        else if ( recipeJSON.get(recipe_meal_type).equals("Treat") ) {
+            mealType = MealType.TREAT;
+        }
+        else {
+            // TODO: testing only
             mealType = MealType.TREAT;
         }
         return mealType;
@@ -104,7 +105,7 @@ public class RecipeJSONParser {
         for ( int i = 0; i < ingredientJSONArray.length(); i++ ) {
             JSONObject ingredientJSON = ingredientJSONArray.getJSONObject(i);
             ingredients.add( new Ingredient( (String) ingredientJSON.get( ingredient ),
-                                             (String) ingredientJSON.get( ingredient_description ) ) );
+                                             (String) ingredientJSON.get( ingredient_quantity ) ) );
         }
         return ingredients;
     }
