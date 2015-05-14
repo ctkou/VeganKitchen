@@ -7,6 +7,7 @@
         <string name="sub_title_section2_1">Sweets</string>
         <string name="sub_title_section2_2">Small Dish</string>
         <string name="sub_title_section2_3">Entree</string>
+        <string name="sub_title_section2_4">Drinks</string>
     <string name="title_section3">Quick Lookup</string>
     <string name="title_section4">Sharing Place</string>
     <string name="seasonal_dish_page_title">Seasonal Dish</string>
@@ -30,6 +31,7 @@
         <item>Sweets</item>
         <item>Small Dish</item>
         <item>Entree</item>
+        <item>Drinks</item>
     </string-array>
 
 </resources>

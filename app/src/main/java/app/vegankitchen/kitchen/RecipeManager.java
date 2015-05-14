@@ -93,6 +93,13 @@ public class RecipeManager {
     }
 
     /**
+     * Return a list of Drinks recipes
+     */
+    public List<Recipe> getDrinksRecipes() {
+        return getRecipesByMealType(recipes, MealType.DRINKS);
+    }
+
+    /**
      * Return a list of filtered recipes based on criteria provided, the filterable criteria are the following:
      * @param recipes : The list recipes to be filtered
      * @param isRaw : filtering criteria - whether a recipe is raw

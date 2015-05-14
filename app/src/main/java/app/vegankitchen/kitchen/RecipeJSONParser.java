@@ -82,6 +82,9 @@ public class RecipeJSONParser {
         else if ( recipeJSON.get(recipe_meal_type).equals("Entree") ) {
             mealType = MealType.ENTREE;
         }
+        else if ( recipeJSON.get(recipe_meal_type).equals("Drinks") ) {
+            mealType = MealType.DRINKS;
+        }
         return mealType;
     }
 

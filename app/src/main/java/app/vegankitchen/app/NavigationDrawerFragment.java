@@ -404,6 +404,8 @@ public class NavigationDrawerFragment extends Fragment {
                 getResources().getString( R.string.sub_title_section2_2 )));
         drawerCategory2.addDrawerItem( new DrawerItem( R.string.sub_title_section2_3,
                 getResources().getString( R.string.sub_title_section2_3 )));
+        drawerCategory2.addDrawerItem( new DrawerItem( R.string.sub_title_section2_4,
+                getResources().getString( R.string.sub_title_section2_4 )));
 
         DrawerCategory drawerCategory3 = new DrawerCategory( R.string.title_section3,
                 getResources().getString( R.string.title_section3 ) );

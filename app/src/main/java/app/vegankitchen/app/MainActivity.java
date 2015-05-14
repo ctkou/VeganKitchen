@@ -391,12 +391,18 @@ public class MainActivity extends ActionBarActivity
                     // Handling the Entree page
                     List<Recipe> entreeRecipes = ((MainActivity) getActivity()).recipeManager.getEntreeRecipes();
                     rootView = setupRecipeSearchPage(inflater, container, R.layout.fragment_main_entree, entreeRecipes
-                                                        ,MealType.ENTREE);
+                            ,MealType.ENTREE);
+                }
+                else if ( sectionName.equals("Drinks") ) {
+                    // Handling the Drinks page
+                    List<Recipe> drinksRecipes = ((MainActivity) getActivity()).recipeManager.getDrinksRecipes();
+                    rootView = setupRecipeSearchPage(inflater, container, R.layout.fragment_main_drinks, drinksRecipes
+                            ,MealType.DRINKS);
                 }
                 else if ( sectionName.equals("Quick Lookup") ) {
                     List<Recipe> allRecipes = ((MainActivity) getActivity()).recipeManager.getAllRecipes();
                     rootView = setupRecipeSearchPage(inflater, container, R.layout.fragment_main_search, allRecipes
-                            ,null);
+                            , null);
                 }
                 else if ( sectionName.equals("Sharing Place") ) {
                     // TODO: handling the sharing place page
@@ -442,6 +448,9 @@ public class MainActivity extends ActionBarActivity
                 }
                 else if ( sectionName.equals(getResources().getString(R.string.sub_title_section2_3)) ) {
                     updateRecipeSearchListView( MealType.ENTREE, rootView );
+                }
+                else if ( sectionName.equals(getResources().getString(R.string.sub_title_section2_4)) ) {
+                    updateRecipeSearchListView( MealType.DRINKS, rootView );
                 }
                 else if ( sectionName.equals(getResources().getString(R.string.title_section3)) ) {
                     updateRecipeSearchListView( null, rootView );
@@ -547,6 +556,11 @@ public class MainActivity extends ActionBarActivity
                         .recipeManager
                         .getEntreeRecipes();
             }
+            else if ( mealType == MealType.DRINKS ) {
+                recipes = ((MainActivity) getActivity())
+                        .recipeManager
+                        .getDrinksRecipes();
+            }
             else if ( mealType == null ) {
                 String selectedString = ((Spinner) rootView.findViewById(R.id.meal_type_searchable))
                         .getSelectedItem().toString();
@@ -575,6 +589,7 @@ public class MainActivity extends ActionBarActivity
          *  - "Sweets" -> MealType.Sweets
          *  - "Small Dish" -> MealType.SMALL_DISH
          *  - "Entree" -> MealType.ENTREE
+         *  - "Drinks" -> MealType.DRINKS
          * @param selectedString : the string representing a MealType
          * @return a MealType correspond to the given string
          */
@@ -590,6 +605,8 @@ public class MainActivity extends ActionBarActivity
                 selectedMealType = MealType.SMALL_DISH;
             else if ( selectedString.equals( "Entree" ) )
                 selectedMealType = MealType.ENTREE;
+            else if ( selectedString.equals( "Drinks" ) )
+                selectedMealType = MealType.DRINKS;
 
             return selectedMealType;
         }
