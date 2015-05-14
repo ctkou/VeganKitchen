@@ -5,5 +5,5 @@ package app.vegankitchen.kitchen;
  * Created by Adam on 2014-12-26.
  */
 public enum MealType {
-    BREAKFAST, DINNER, TREAT, SWEETS, SMALL_DISH, ENTRE, DRINKS
+    BREAKFAST, DINNER, TREAT, SWEETS, SMALL_DISH, ENTREE, DRINKS
 }

@@ -1,15 +1,12 @@
 package app.vegankitchen.app;
 
 import android.app.Activity;
-import android.content.DialogInterface;
-import android.media.Image;
 import android.os.AsyncTask;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -17,24 +14,16 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.support.v4.widget.DrawerLayout;
 import android.widget.*;
-import app.vegankitchen.exception.NoSeasonalDishException;
 import app.vegankitchen.kitchen.Ingredient;
 import app.vegankitchen.kitchen.MealType;
 import app.vegankitchen.kitchen.Recipe;
 import app.vegankitchen.kitchen.RecipeManager;
 import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.w3c.dom.Text;
 
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStreamReader;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
@@ -101,11 +90,6 @@ public class MainActivity extends ActionBarActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
-        if ( mTitle == null )
-            Log.e("MainActivity - onCreate (s)", "null" );
-        else
-            Log.e("MainActivity - onCreate (s)", mTitle.toString());
-
         mTitle = getResources().getString(R.string.app_name);
 
         // Download data from database
@@ -124,8 +108,6 @@ public class MainActivity extends ActionBarActivity
         try {
             if ( recipeDataString != null )
                 recipeManager = new RecipeManager( new JSONArray(recipeDataString) );
-            else
-                recipeManager = new RecipeManager();
         }
         catch (Exception e) {
             e.printStackTrace();
@@ -133,7 +115,6 @@ public class MainActivity extends ActionBarActivity
 
         // Obtaining the last visible fragment and last selected recipe information if they exist
         if ( savedInstanceState != null ) {
-            Log.e( "MainActivity - onCreate (m)", getResources().getString( (int) savedInstanceState.getLong( LAST_SECTION_NUMBER )));
             currentArgSectionNumber = savedInstanceState.getLong( LAST_SECTION_NUMBER );
             isRecipePage = savedInstanceState.getBoolean( LAST_IS_RECIPE );
             mTitle = getResources().getString( (int) currentArgSectionNumber );
@@ -155,7 +136,6 @@ public class MainActivity extends ActionBarActivity
                 R.id.navigation_drawer,
                 (DrawerLayout) findViewById(R.id.drawer_layout));
 
-        Log.e("MainActivity - onCreate (e)", mTitle.toString());
     }
 
     /**
@@ -225,13 +205,11 @@ public class MainActivity extends ActionBarActivity
             return true;
         }
 
-        Log.e("MainActivity - onOptionsItemSelected", mTitle.toString());
         return super.onOptionsItemSelected(item);
     }
 
     @Override
     public void onSaveInstanceState( Bundle outState ) {
-        Log.e("MainActivity - onSaveInstanceState", mTitle.toString());
 
         outState.putLong(LAST_SECTION_NUMBER, currentArgSectionNumber);
 
@@ -265,7 +243,6 @@ public class MainActivity extends ActionBarActivity
     @Override
     public void onNavigationDrawerItemSelected( long id) {
 
-        Log.e("MainActivity - onNavigationDrawerItemSelected (s)", getResources().getString( (int) id ));
 
         // set the currently selected recipe to be null, since it is the navigation drawer that got selected
         isRecipePage = false;
@@ -281,7 +258,6 @@ public class MainActivity extends ActionBarActivity
                 .addToBackStack(null)
                 .commit();
 
-        Log.e("MainActivity - onNavigationDrawerItemSelected (e)", getResources().getString( (int) id ));
     }
 
     /**
@@ -361,15 +337,12 @@ public class MainActivity extends ActionBarActivity
          */
         public static PlaceholderFragment newInstance( long sectionId, boolean isRecipePage ) {
 
-            Log.e("PlaceholderFragment - newInstance (s)", String.valueOf( sectionId ));
-
             PlaceholderFragment fragment = new PlaceholderFragment();
             Bundle args = new Bundle();
             args.putLong(ARG_SECTION_NUMBER, sectionId);
             args.putBoolean(ARG_IS_RECIPE_PAGE, isRecipePage);
             fragment.setArguments(args);
 
-            Log.e("PlaceholderFragment - newInstance (e)", String.valueOf( sectionId ));
             return fragment;
         }
 
@@ -378,15 +351,12 @@ public class MainActivity extends ActionBarActivity
 
         @Override
         public void onCreate(Bundle savedInstanceState) {
-            Log.e("PlaceholderFragment - onCreate (s)", getResources().getString((int) getArguments().getLong(this.ARG_SECTION_NUMBER)));
             super.onCreate(savedInstanceState);
-            Log.e("PlaceholderFragment - onCreate (e)", getResources().getString((int) getArguments().getLong(this.ARG_SECTION_NUMBER)));
         }
 
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
-            Log.e("PlaceholderFragment - onCreateView (s)", getResources().getString((int) getArguments().getLong(this.ARG_SECTION_NUMBER)));
             View rootView = null;
 
             // Get the section name that this fragment is associated with
@@ -405,29 +375,25 @@ public class MainActivity extends ActionBarActivity
                 rootView = setupDishPage( inflater, container );
             }
             else {
-                if ( sectionName.equals("Breakfast") )  {
-                    // Handling the breakfast page
-                    List<Recipe> breakfastRecipes = ((MainActivity) getActivity()).recipeManager.getBreakfastRecipes();
-                    rootView = setupRecipeSearchPage(inflater,container,R.layout.fragment_main_breakfast,breakfastRecipes
-                            ,MealType.BREAKFAST);
-
+                if ( sectionName.equals("Sweets") )  {
+                    // Handling the sweets page
+                    List<Recipe> sweetsRecipes = ((MainActivity) getActivity()).recipeManager.getSweetsRecipes();
+                    rootView = setupRecipeSearchPage(inflater,container,R.layout.fragment_main_sweets,sweetsRecipes
+                            ,MealType.SWEETS);
                 }
-                else if ( sectionName.equals("Dinner") ) {
-                    // Handling the dinner page
-                    List<Recipe> dinnerRecipes = ((MainActivity) getActivity()).recipeManager.getDinnerRecipes();
-                    rootView = setupRecipeSearchPage(inflater,container,R.layout.fragment_main_dinner,dinnerRecipes
-                                                        ,MealType.DINNER);
-
+                else if ( sectionName.equals("Small Dish") ) {
+                    // Handling the Small Dish page
+                    List<Recipe> smallDishRecipes = ((MainActivity) getActivity()).recipeManager.getSmallDishRecipes();
+                    rootView = setupRecipeSearchPage(inflater,container,R.layout.fragment_main_small_dish,smallDishRecipes
+                                                        ,MealType.SMALL_DISH);
                 }
-                else if ( sectionName.equals("Treat") ) {
-                    // Handling the treat page
-                    List<Recipe> treatRecipes = ((MainActivity) getActivity()).recipeManager.getTreatRecipes();
-                    rootView = setupRecipeSearchPage(inflater, container, R.layout.fragment_main_treat, treatRecipes
-                                                        ,MealType.TREAT);
+                else if ( sectionName.equals("Entree") ) {
+                    // Handling the Entree page
+                    List<Recipe> entreeRecipes = ((MainActivity) getActivity()).recipeManager.getEntreeRecipes();
+                    rootView = setupRecipeSearchPage(inflater, container, R.layout.fragment_main_entree, entreeRecipes
+                                                        ,MealType.ENTREE);
                 }
                 else if ( sectionName.equals("Quick Lookup") ) {
-                    // TODO: handling the quick lookup page
-                    // Handling the treat page
                     List<Recipe> allRecipes = ((MainActivity) getActivity()).recipeManager.getAllRecipes();
                     rootView = setupRecipeSearchPage(inflater, container, R.layout.fragment_main_search, allRecipes
                             ,null);
@@ -451,12 +417,10 @@ public class MainActivity extends ActionBarActivity
 
             }
 
-
             // making sure that the action bar display the correct title when the back button is pressed
             onAttach( getActivity() );
             ((MainActivity) getActivity()).restoreActionBar();
 
-            Log.e("PlaceholderFragment - onCreateView (e)", getResources().getString((int) getArguments().getLong(this.ARG_SECTION_NUMBER)));
             return rootView;
         }
 
@@ -471,13 +435,13 @@ public class MainActivity extends ActionBarActivity
             String sectionName = getResources().getString( (int) sectionId );
             if ( !((MainActivity) getActivity()).isRecipePage )
                 if ( sectionName.equals(getResources().getString(R.string.sub_title_section2_1)) ) {
-                    updateRecipeSearchListView( MealType.BREAKFAST, rootView );
+                    updateRecipeSearchListView( MealType.SWEETS, rootView );
                 }
                 else if ( sectionName.equals(getResources().getString(R.string.sub_title_section2_2)) ) {
-                    updateRecipeSearchListView( MealType.DINNER, rootView );
+                    updateRecipeSearchListView( MealType.SMALL_DISH, rootView );
                 }
                 else if ( sectionName.equals(getResources().getString(R.string.sub_title_section2_3)) ) {
-                    updateRecipeSearchListView( MealType.TREAT, rootView );
+                    updateRecipeSearchListView( MealType.ENTREE, rootView );
                 }
                 else if ( sectionName.equals(getResources().getString(R.string.title_section3)) ) {
                     updateRecipeSearchListView( null, rootView );
@@ -486,7 +450,6 @@ public class MainActivity extends ActionBarActivity
 
         @Override
         public void onSaveInstanceState(Bundle outState) {
-            Log.e("PlaceholderFragment - onSaveInstanceState", getResources().getString((int) getArguments().getLong(this.ARG_SECTION_NUMBER)));
             super.onSaveInstanceState(outState);
         }
 
@@ -569,20 +532,20 @@ public class MainActivity extends ActionBarActivity
 
             // Initializing the recipes list
             List<Recipe> recipes = null;
-            if ( mealType == MealType.BREAKFAST ) {
+            if ( mealType == MealType.SWEETS ) {
                 recipes = ((MainActivity) getActivity())
                         .recipeManager
-                        .getBreakfastRecipes();
+                        .getSweetsRecipes();
             }
-            else if ( mealType == MealType.DINNER ) {
+            else if ( mealType == MealType.SMALL_DISH ) {
                 recipes = ((MainActivity) getActivity())
                         .recipeManager
-                        .getDinnerRecipes();
+                        .getSmallDishRecipes();
             }
-            else if ( mealType == MealType.TREAT ) {
+            else if ( mealType == MealType.ENTREE ) {
                 recipes = ((MainActivity) getActivity())
                         .recipeManager
-                        .getTreatRecipes();
+                        .getEntreeRecipes();
             }
             else if ( mealType == null ) {
                 String selectedString = ((Spinner) rootView.findViewById(R.id.meal_type_searchable))
@@ -609,9 +572,9 @@ public class MainActivity extends ActionBarActivity
         /**
          * Return the MealType that the given string represent:
          *  - "All" -> null
-         *  - "Breakfast" -> MealType.BREAKFAST
-         *  - "Dinner" -> MealType.DINNER
-         *  - "Treat" -> MealType.TREAT
+         *  - "Sweets" -> MealType.Sweets
+         *  - "Small Dish" -> MealType.SMALL_DISH
+         *  - "Entree" -> MealType.ENTREE
          * @param selectedString : the string representing a MealType
          * @return a MealType correspond to the given string
          */
@@ -621,12 +584,12 @@ public class MainActivity extends ActionBarActivity
 
             if ( selectedString.equals( "All" ))
                 selectedMealType = null;
-            else if ( selectedString.equals( "Breakfast") )
-                selectedMealType = MealType.BREAKFAST;
-            else if ( selectedString.equals( "Dinner" ) )
-                selectedMealType = MealType.DINNER;
-            else if ( selectedString.equals( "Treat" ) )
-                selectedMealType = MealType.TREAT;
+            else if ( selectedString.equals( "Sweets") )
+                selectedMealType = MealType.SWEETS;
+            else if ( selectedString.equals( "Small Dish" ) )
+                selectedMealType = MealType.SMALL_DISH;
+            else if ( selectedString.equals( "Entree" ) )
+                selectedMealType = MealType.ENTREE;
 
             return selectedMealType;
         }

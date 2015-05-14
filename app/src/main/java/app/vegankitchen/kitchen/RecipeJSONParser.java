@@ -73,18 +73,14 @@ public class RecipeJSONParser {
 
     private MealType getMealType ( JSONObject recipeJSON ) throws JSONException {
         MealType mealType = null;
-        if ( recipeJSON.get(recipe_meal_type).equals("Breakfast") ) {
-            mealType = MealType.BREAKFAST;
+        if ( recipeJSON.get(recipe_meal_type).equals("Sweets") ) {
+            mealType = MealType.SWEETS;
         }
-        else if ( recipeJSON.get(recipe_meal_type).equals("Dinner") ) {
-            mealType = MealType.DINNER;
+        else if ( recipeJSON.get(recipe_meal_type).equals("Small Dish") ) {
+            mealType = MealType.SMALL_DISH;
         }
-        else if ( recipeJSON.get(recipe_meal_type).equals("Treat") ) {
-            mealType = MealType.TREAT;
-        }
-        else {
-            // TODO: testing only
-            mealType = MealType.TREAT;
+        else if ( recipeJSON.get(recipe_meal_type).equals("Entree") ) {
+            mealType = MealType.ENTREE;
         }
         return mealType;
     }
@@ -120,11 +116,4 @@ public class RecipeJSONParser {
         return tips;
     }
 
-    private boolean getBoolean ( int i ) {
-        boolean b = false;
-        if ( i > 0 ) {
-            b = true;
-        }
-        return b;
-    }
 }

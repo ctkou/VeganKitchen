@@ -35,78 +35,6 @@ public class RecipeManager {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
-    }
-
-    public RecipeManager() {
-        // check out the entire list of stored recipes
-        // TODO: implement the actual database
-        // TODO: This is data manually created for testing only
-
-        String path = "/storage/emulated/0/Pictures/Testing/testcake1.jpg";
-        String recipeName1 = "Viagra Cake";
-        Bitmap image1 = BitmapFactory.decodeFile(path);
-        String description1 = "Want more fun time in bed? This gluten free viagra laden cake is here to help. But make sure you don't have any medical problem with your heart before making this";
-        String preparationTime1 = "About 3 months";
-        String servingSizeDescription1 = "Enough for one person";
-        Ingredient ingredient1 = new Ingredient("Viagra pills","A whole lot");
-        Ingredient ingredient2 = new Ingredient("Some one to have sex with", "at least one");
-        List<Ingredient> ingredients1 = new ArrayList<Ingredient>();
-        ingredients1.add(ingredient1);
-        ingredients1.add(ingredient2);
-        List<String> cookingInstructions1 = new ArrayList<String>();
-        cookingInstructions1.add("1. Add some viagra pills");
-        cookingInstructions1.add("2. Add some more viagra pills");
-        cookingInstructions1.add("3. Add even more viagra pills");
-        cookingInstructions1.add("4. Put it in oven for 3 months until burn to very very dark in color");
-        String string1 = "We take no responsibility of any medical complication.";
-        List<String> tips1 = new ArrayList<String>();
-        tips1.add(string1);
-        Recipe recipe1 = new Recipe(10,recipeName1,image1,MealType.TREAT,description1,preparationTime1,
-                servingSizeDescription1,ingredients1,cookingInstructions1,tips1,true,true,false,true,false);
-
-        String path2 = "/res/drawable/testdish2.jpg";
-        String recipeName2 = "Pancake";
-        Bitmap image2 = BitmapFactory.decodeFile(path2);
-        String description2 = "Just some normal pancake";
-        String preparationTime2 = "An hour?";
-        String servingSizeDescription2 = "I don't know?";
-        Ingredient ingredient3 = new Ingredient("powder?", "some");
-        Ingredient ingredient4 = new Ingredient("eggs as well?", "some");
-        List<Ingredient> ingredients2 = new ArrayList<Ingredient>();
-        ingredients2.add(ingredient3);
-        ingredients2.add(ingredient4);
-        List<String> cookingInstructions2 = new ArrayList<String>();
-        cookingInstructions2.add("1. Add the powdery thing");
-        cookingInstructions2.add("2. Add the eggs");
-        String string2 = "Do somme more internet search first";
-        List<String> tips2 = new ArrayList<String>();
-        tips1.add(string2);
-        Recipe recipe2 = new Recipe(20,recipeName2,image2,MealType.BREAKFAST,description2,preparationTime2,
-                servingSizeDescription2,ingredients2,cookingInstructions2,tips2,false,false,false,true,false);
-
-        String path3 = "/storage/emulated/0/Pictures/Testing/breakfast2.jpg";
-        String recipeName3 = "Breast Milk";
-        Bitmap image3 = BitmapFactory.decodeFile(path3);
-        String description3 = "Not kidding, real human breast milk!";
-        String preparationTime3 = "Within seconds";
-        String servingSizeDescription3 = "Depends on the woman";
-        Ingredient ingredient5 = new Ingredient("Woman with milk", "one");
-        List<Ingredient> ingredients3 = new ArrayList<Ingredient>();
-        ingredients3.add(ingredient5);
-        List<String> cookingInstructions3 = new ArrayList<String>();
-        cookingInstructions3.add("1. Just suck on the nipples.");
-        String string3 = "Look out for aids";
-        List<String> tips3 = new ArrayList<String>();
-        tips3.add(string3);
-        Recipe recipe3 = new Recipe(30,recipeName3,image3,MealType.BREAKFAST,description3,preparationTime3,
-                servingSizeDescription3,ingredients3,cookingInstructions3,tips3,true,true,true,true,true);
-
-        recipes = new ArrayList<Recipe>();
-
-        recipes.add(recipe1);
-        recipes.add(recipe2);
-        recipes.add(recipe3);
     }
 
     /**
@@ -144,24 +72,24 @@ public class RecipeManager {
     }
 
     /**
-     * Return a list of breakfast recipes
+     * Return a list of sweets recipes
      */
-    public List<Recipe> getBreakfastRecipes() {
-        return getRecipesByMealType(recipes, MealType.BREAKFAST);
+    public List<Recipe> getSweetsRecipes() {
+        return getRecipesByMealType(recipes, MealType.SWEETS);
     }
 
     /**
-     * Return a list of dinner recipes
+     * Return a list of small dish recipes
      */
-    public List<Recipe> getDinnerRecipes() {
-        return getRecipesByMealType(recipes, MealType.DINNER);
+    public List<Recipe> getSmallDishRecipes() {
+        return getRecipesByMealType(recipes, MealType.SMALL_DISH);
     }
 
     /**
-     * Return a list of treat recipes
+     * Return a list of Entree recipes
      */
-    public List<Recipe> getTreatRecipes() {
-        return getRecipesByMealType(recipes, MealType.TREAT);
+    public List<Recipe> getEntreeRecipes() {
+        return getRecipesByMealType(recipes, MealType.ENTREE);
     }
 
     /**

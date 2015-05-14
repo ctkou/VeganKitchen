@@ -4,13 +4,13 @@
     <string name="app_name">Vegan Kitchen</string>
     <string name="title_section1">Main Kitchen</string>
     <string name="title_section2">Recipes</string>
-        <string name="sub_title_section2_1">Breakfast</string>
-        <string name="sub_title_section2_2">Dinner</string>
-        <string name="sub_title_section2_3">Treat</string>
+        <string name="sub_title_section2_1">Sweets</string>
+        <string name="sub_title_section2_2">Small Dish</string>
+        <string name="sub_title_section2_3">Entree</string>
     <string name="title_section3">Quick Lookup</string>
     <string name="title_section4">Sharing Place</string>
     <string name="seasonal_dish_page_title">Seasonal Dish</string>
-    <string name="breakfast_page_title">Breakfast Recipes</string>
+    <string name="sweets_page_title">Sweets Recipes</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="action_example">Example action</string>
@@ -27,9 +27,9 @@
     <!-- MealType searchable -->
     <string-array name="meal_type_searchable">
         <item>All</item>
-        <item>Breakfast</item>
-        <item>Dinner</item>
-        <item>Treat</item>
+        <item>Sweets</item>
+        <item>Small Dish</item>
+        <item>Entree</item>
     </string-array>
 
 </resources>
